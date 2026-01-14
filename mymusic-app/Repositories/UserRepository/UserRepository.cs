@@ -71,10 +71,15 @@ namespace mymusic_app.Repositories
             => await _db.UserSongLikes.CountAsync(l => l.UserId == userId);
 
         public async Task<IEnumerable<Song>> GetLikedSongsAsync(Guid userId)
-            => await _db.UserSongLikes
-                .Where(l => l.UserId == userId)
-                .Select(l => l.Song)
-                .ToListAsync();
+    => await _db.UserSongLikes
+        .Where(l => l.UserId == userId)
+        .Include(l => l.Song)
+            .ThenInclude(s => s.Artist)
+        .Include(l => l.Song)
+            .ThenInclude(s => s.Album)
+        .Select(l => l.Song)
+        .ToListAsync();
+
 
         public async Task LikeSongAsync(Guid userId, Guid songId)
         {

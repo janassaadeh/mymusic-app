@@ -10,9 +10,9 @@ namespace mymusic_app.Controllers
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class FeedController : ControllerBase
     {
-        private readonly UserService _userService;
+        private readonly IUserService _userService;
 
-        public FeedController(UserService userService)
+        public FeedController(IUserService userService)
         {
             _userService = userService;
         }

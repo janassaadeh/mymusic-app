@@ -19,14 +19,20 @@ namespace mymusic_app.Repositories
 
         public async Task<IEnumerable<Song>> GetTopSongsByGenreAsync(Guid genreId, int limit = 20)
         {
-            return await _db.UserSongPlays
-                .Where(p => p.Song.Genres.Any(g => g.GenreId == genreId))
-                .GroupBy(p => p.Song)
-                .OrderByDescending(g => g.Count())
-                .Select(g => g.Key)
+            var songsQuery = _db.Songs
+                .Include(s => s.Album)
+                    .ThenInclude(a => a.Artist)
+                .Include(s => s.Artist)
+                .Where(s => s.Genres.Any(g => g.GenreId == genreId));
+
+            var topSongs = await songsQuery
+                .OrderByDescending(s => s.Plays.Count) 
                 .Take(limit)
                 .ToListAsync();
+
+            return topSongs;
         }
+
 
         public async Task<Song> AddAsync(Song song)
         {

@@ -10,9 +10,9 @@ namespace mymusic_app.Controllers
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class AlbumsController : ControllerBase
     {
-        private readonly AlbumService _albumService;
+        private readonly IAlbumService _albumService;
 
-        public AlbumsController(AlbumService albumService)
+        public AlbumsController(IAlbumService albumService)
         {
             _albumService = albumService;
         }

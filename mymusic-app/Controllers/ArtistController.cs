@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using mymusic_app.DTOs;
+using mymusic_app.Models;
 using mymusic_app.Services;
 
 namespace mymusic_app.Controllers
@@ -10,9 +12,9 @@ namespace mymusic_app.Controllers
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class ArtistController : ControllerBase
     {
-        private readonly ArtistService _artistService;
+        private readonly IArtistService _artistService;
 
-        public ArtistController(ArtistService artistService)
+        public ArtistController(IArtistService artistService)
         {
             _artistService = artistService;
         }
@@ -22,7 +24,10 @@ namespace mymusic_app.Controllers
         public async Task<IActionResult> GetAllArtists()
         {
             var artists = await _artistService.GetAllAsync();
-            return Ok(artists);
+
+            var dtos = artists.Select(MapToDto);
+
+            return Ok(dtos);
         }
 
         // GET api/artist/{id}
@@ -32,7 +37,9 @@ namespace mymusic_app.Controllers
             var artist = await _artistService.GetArtistByIdAsync(id);
             if (artist == null)
                 return NotFound();
-            return Ok(artist);
+
+            var dto = MapToDto(artist);
+            return Ok(dto);
         }
 
         // GET api/artist/{id}/topsongs
@@ -40,7 +47,14 @@ namespace mymusic_app.Controllers
         public async Task<IActionResult> TopSongs(Guid id)
         {
             var songs = await _artistService.GetTopSongsAsync(id);
-            return Ok(songs);
+            var dtos = songs.Select(s => new SongDto
+            {
+                Id = s.Id,
+                DeezerTrackId = s.DeezerTrackId,
+                Title = s.Title,
+                Duration = s.Duration
+            });
+            return Ok(dtos);
         }
 
         // GET api/artist/{id}/albums
@@ -48,7 +62,15 @@ namespace mymusic_app.Controllers
         public async Task<IActionResult> Albums(Guid id)
         {
             var albums = await _artistService.GetAlbumsWithSongsAsync(id);
-            return Ok(albums);
+            var dtos = albums.Select(a => new AlbumDto
+            {
+                Id = a.Id,
+                Title = a.Title,
+                CoverImageUrl = a.CoverImageUrl,
+                ReleaseDate = a.ReleaseDate,
+                SongCount = a.Songs?.Count ?? 0
+            });
+            return Ok(dtos);
         }
 
         // GET api/artist/{id}/similar
@@ -56,7 +78,40 @@ namespace mymusic_app.Controllers
         public async Task<IActionResult> Similar(Guid id)
         {
             var artists = await _artistService.GetSimilarArtistsAsync(id);
-            return Ok(artists);
+            var dtos = artists.Select(MapToDto);
+            return Ok(dtos);
+        }
+
+        // ------------------- Helper -------------------
+        private ArtistDto MapToDto(Artist a)
+        {
+            return new ArtistDto
+            {
+                Id = a.Id,
+                Name = a.Name,
+                ImageUrl = a.ImageUrl,
+                Genres = a.Genres?.Select(g => new GenreDto
+                {
+                    Id = g.GenreId,
+                    Name = g.Genre?.Name ?? "Unknown"
+                }).ToList() ?? new List<GenreDto>(),
+                Albums = a.Albums?.Select(al => new AlbumDto
+                {
+                    Id = al.Id,
+                    Title = al.Title,
+                    CoverImageUrl = al.CoverImageUrl,
+                    ReleaseDate = al.ReleaseDate,
+                    SongCount = al.Songs?.Count ?? 0
+                }).ToList() ?? new List<AlbumDto>(),
+                Songs = a.Songs?.Select(s => new SongDto
+                {
+                    Id = s.Id,
+                    DeezerTrackId = s.DeezerTrackId,
+                    Title = s.Title,
+                    Duration = s.Duration
+                }).ToList() ?? new List<SongDto>(),
+                FollowerCount = a.Followers?.Count ?? 0
+            };
         }
     }
 }

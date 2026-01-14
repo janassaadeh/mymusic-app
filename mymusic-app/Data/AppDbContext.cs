@@ -65,7 +65,7 @@ namespace mymusic_app.Controllers.Data
                 .HasOne(ua => ua.Artist)
                 .WithMany(a => a.Followers)
                 .HasForeignKey(ua => ua.ArtistId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
 
             // -----------------------
             // User ↔ Album
@@ -83,7 +83,7 @@ namespace mymusic_app.Controllers.Data
                 .HasOne(ua => ua.Album)
                 .WithMany(a => a.Followers)
                 .HasForeignKey(ua => ua.AlbumId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
 
             // -----------------------
             // User ↔ Song Likes
@@ -101,7 +101,7 @@ namespace mymusic_app.Controllers.Data
                 .HasOne(us => us.Song)
                 .WithMany(s => s.Likes)
                 .HasForeignKey(us => us.SongId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
 
             // -----------------------
             // User ↔ Song Plays
@@ -119,7 +119,7 @@ namespace mymusic_app.Controllers.Data
                 .HasOne(usp => usp.Song)
                 .WithMany(s => s.Plays)
                 .HasForeignKey(usp => usp.SongId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<UserSongPlay>()
                 .HasIndex(usp => new { usp.UserId, usp.PlayedAt });
@@ -140,7 +140,7 @@ namespace mymusic_app.Controllers.Data
                 .HasOne(ps => ps.Song)
                 .WithMany(s => s.Playlists)
                 .HasForeignKey(ps => ps.SongId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
 
             // -----------------------
             // Playlist Followers
@@ -152,13 +152,13 @@ namespace mymusic_app.Controllers.Data
                 .HasOne(pf => pf.User)
                 .WithMany(u => u.FollowedPlaylists)
                 .HasForeignKey(pf => pf.UserId)
-                .OnDelete(DeleteBehavior.Restrict); // ❌ no cascade to prevent multiple cascade paths
+                .OnDelete(DeleteBehavior.Restrict);
 
             builder.Entity<PlaylistFollow>()
                 .HasOne(pf => pf.Playlist)
                 .WithMany(p => p.Followers)
                 .HasForeignKey(pf => pf.PlaylistId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
 
             // -----------------------
             // Artist ↔ Genre
@@ -170,7 +170,7 @@ namespace mymusic_app.Controllers.Data
                 .HasOne(ag => ag.Artist)
                 .WithMany(a => a.Genres)
                 .HasForeignKey(ag => ag.ArtistId)
-                .OnDelete(DeleteBehavior.Cascade); // 🔹 deleting artist deletes join rows
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<ArtistGenre>()
                 .HasOne(ag => ag.Genre)
@@ -188,7 +188,7 @@ namespace mymusic_app.Controllers.Data
                 .HasOne(sg => sg.Song)
                 .WithMany(s => s.Genres)
                 .HasForeignKey(sg => sg.SongId)
-                .OnDelete(DeleteBehavior.Cascade); // 🔹 deleting song deletes join rows
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<SongGenre>()
                 .HasOne(sg => sg.Genre)
@@ -203,16 +203,16 @@ namespace mymusic_app.Controllers.Data
                 .HasOne(s => s.Album)
                 .WithMany(a => a.Songs)
                 .HasForeignKey(s => s.AlbumId)
-                .OnDelete(DeleteBehavior.Cascade); // deleting album deletes songs
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<Song>()
                 .HasOne(s => s.Artist)
                 .WithMany(a => a.Songs)
                 .HasForeignKey(s => s.ArtistId)
-                .OnDelete(DeleteBehavior.Restrict); // prevent multiple cascade paths
+                .OnDelete(DeleteBehavior.Restrict);
 
             // -----------------------
-            // Additional Indexes
+            // Indexes
             // -----------------------
             builder.Entity<Song>().HasIndex(s => s.Title);
             builder.Entity<Artist>().HasIndex(a => a.Name);

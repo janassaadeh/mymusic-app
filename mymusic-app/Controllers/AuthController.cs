@@ -36,7 +36,7 @@ namespace mymusic_app.Controllers
                 if (user.IsAdmin)
                     return RedirectToAction("Index", "Admin"); // Admin dashboard
 
-                return RedirectToAction("Index", "Music"); // regular users
+                return RedirectToAction("Dashboard", "Account"); // regular users
             }
             catch (Exception ex)
             {
@@ -65,7 +65,7 @@ namespace mymusic_app.Controllers
             if (user.IsAdmin)
                 return RedirectToAction("Index", "Admin");
 
-            return RedirectToAction("Index", "Music");
+            return RedirectToAction("Dashboard", "Account");
         }
 
         // ------------------- WEB LOGOUT ----------------

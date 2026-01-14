@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using mymusic_app.Services;
 
@@ -6,12 +7,13 @@ namespace mymusic_app.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+
     public class SongsController : ControllerBase
     {
-        private readonly SongService _songService;
+        private readonly ISongService _songService;
 
-        public SongsController(SongService songService)
+        public SongsController(ISongService songService)
         {
             _songService = songService;
         }
